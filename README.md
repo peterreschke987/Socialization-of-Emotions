@@ -8,10 +8,12 @@ The repository can be cloned using the following instructions
    2) From Git Bash, navigate to the desired installation location and run
    
    		```git clone https://github.com/sreschke/Socialization-of-Emotions.git```
+         
+   3) FIXME: What packages need to be installed with pip?
 
 ## Running the code
 1) In Anaconda Prompt run
-
+   
    		```python word_count.py```
 
 2) Follow the prompts from the script
