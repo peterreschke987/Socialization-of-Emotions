@@ -13,5 +13,5 @@ The repository can be cloned using the following instructions
 1) In Anaconda Prompt run
 
    		```python word_count.py```
-      
+
 2) Follow the prompts from the script
