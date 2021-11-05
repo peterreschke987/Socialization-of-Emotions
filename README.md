@@ -4,16 +4,17 @@ FIXME PETER: Give an overview of this project. What does this code do? How is it
 
 ## Cloning the repository
 The repository can be cloned using the following instructions
-   1) If not currently installed, install [git](https://git-scm.com/)
-   2) From Git Bash, navigate to the desired installation location and run
+   1) If not currently installed, install [Anaconda](https://docs.anaconda.com/anaconda/install/index.html)
+   2) If not currently installed, install [git](https://git-scm.com/)
+   3) From Anaconda Prompt or terminal, navigate to the desired installation location and run
    
    		```git clone https://github.com/sreschke/Socialization-of-Emotions.git```
          
-   3) FIXME: What packages need to be installed with pip?
+   4) Install docx via pip; from Anaconda Prompt or terminal, run
+   
+   		```pip install python-docx```
 
 ## Running the code
   1) In Anaconda Prompt run
    
-		```python word_count.py```		
-
-  2) Follow the prompts from the script
+   		```python word_count.py```
