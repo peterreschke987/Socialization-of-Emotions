@@ -8,7 +8,7 @@ The repository can be cloned using the following instructions
    2) If not currently installed, install [git](https://git-scm.com/)
    3) From Anaconda Prompt or terminal, navigate to the desired installation location and run
    
-   		```git clone https://github.com/sreschke/Socialization-of-Emotions.git```
+   		```git clone https://github.com/peterreschke987/Socialization-of-Emotions.git```
          
    4) Install docx via pip; from Anaconda Prompt or terminal, run
    
