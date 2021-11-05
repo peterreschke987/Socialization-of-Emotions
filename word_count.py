@@ -61,6 +61,8 @@ def updateWordCount(filename):
         if (page_in_para):
             currPage = page_in_para[2]
             currIndex = currDoc + '-Page-' + currPage
+            df_counts.loc[currIndex, 'P_WordCount'] = 0  # Initialize the Parent word count for the file
+            df_counts.loc[currIndex, 'C_WordCount'] = 0  # Initialize the Child word count for the file
             if (currPage.lower == 'stop'):
                 print('Stop Page Detected')
             else:
@@ -150,8 +152,6 @@ if __name__ == '__main__':
         openName = originDirectory + "/" + filename  # I want to leave the original files alone, so put edited files in a different location
 
         doc = Document(originDirectory + '/' + filename)  # Open the original file
-        df_counts.loc[currIndex, 'P_WordCount'] = 0  # Initialize the Parent word count for the file
-        df_counts.loc[currIndex, 'C_WordCount'] = 0  # Initialize the Child word count for the file
         updateWordCount(openName)
         df_counts.to_csv(saveDirectory + r'\word_counts_final.csv', index=True, index_label='Participant_ID')
 
