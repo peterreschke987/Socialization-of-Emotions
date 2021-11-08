@@ -147,6 +147,8 @@ if __name__ == '__main__':
     directory = os.fsencode(originDirectory)
     for file in os.listdir(directory):  # Grab each file, one at a time
         filename = os.fsdecode(file)  # Take the code from computer language to a path
+        if filename.split('.')[-1] != 'docx':
+            continue #skip non .docx files
         currDoc = filename[:(len(filename) - 5)]  # Grab the name of the current document from the full path
         print('Working to analyze ' + currDoc)  # User-friendly message
         openName = originDirectory + "/" + filename  # I want to leave the original files alone, so put edited files in a different location
