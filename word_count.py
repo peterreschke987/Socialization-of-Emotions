@@ -13,14 +13,23 @@ from docx.enum.text import WD_COLOR_INDEX
 import copy
 import re
 import os
+import sys
+import ast
 import csv
 import pandas as pd
 import tkinter as tk
 from tkinter import filedialog
+import argparse
 
+##############################################################
+# updateWordCount counts the number of words in each paragraph
+
+# Called from Main
+# Returns: Nothing
+##############################################################
 # Global variables
 originDirectory = "rawFiles"  # Default will get rewritten by dialog menu
-saveDirectory = "parsedFiles"  # Default will get rewritten by dialog menu
+saveDirectory = "results"  # Default will get rewritten by dialog menu
 fileName_keys = 'testName.csv'  # Default will get rewritten by dialog menu
 head_emotion = 'Emotion Words'  # Column name in csv for Emotion Words
 head_emoter = 'Emoter Words'  # Column name in csv for Emoter Words
@@ -35,15 +44,8 @@ numPages = 30  # The number of different pictures the children could be shown
 currSpeaker = 'None'
 currPage = 'None'
 currDoc = 'None'
-currIndex = 'None'
+currIndex = 'None'            
 
-
-##############################################################
-# updateWordCount counts the number of words in each paragraph
-
-# Called from Main
-# Returns: Nothing
-##############################################################
 def updateWordCount(filename):
     global currIndex  # Reference the global current Index
     global currSpeaker  # Reference the global current Speaker
@@ -109,20 +111,43 @@ def updateWordCount(filename):
             # print('        Added Child ' + currIndex + ' ',words,' for a total of ' + str(df_counts.loc[currIndex, 'C_WordCount']))
     return
 
-
-##############################################################
-# This is where the program will actually start
-# Then, it will follow through the function calls
-##############################################################
-if __name__ == '__main__':
+def main(args):
+    #Create Command Line Parser and parse arguments
+    parser = argparse.ArgumentParser(description=r"")
+    parser.add_argument('-r', '--rebuild', type=ast.literal_eval, default=False, help="Whether to rebuild the word_counts_setup file; default is False")
+    opts = parser.parse_args(args)
+    
+    #Create dialogue box and ask for keywords file
     root = tk.Tk()
     root.withdraw()
     fileName_keys = filedialog.askopenfile(title="Select a csv file containing your keywords",
-                                           filetypes=(("CSV Files", "*.csv"), ("All Files", "*.*")))
-    originDirectory = filedialog.askdirectory(title="Select the folder with your original files")
+                                            filetypes=(("CSV Files", "*.csv"), ("All Files", "*.*")))
     saveDirectory = filedialog.askdirectory(title=" Select the folder where you want to the output file to be")
-    print(fileName_keys)
     keywords = pd.read_csv(fileName_keys, delimiter=',')  # Read in key words from the csv file
+    
+    if opts.rebuild:        
+        originDirectory = filedialog.askdirectory(title="Select the folder with your original files")
+        ### This directory section will make the code execute on each of the files in the originDirectory
+        directory = os.fsencode(originDirectory)
+        for file in os.listdir(directory):  # Grab each file, one at a time
+            filename = os.fsdecode(file)  # Take the code from computer language to a path
+            if filename.split('.')[-1] != 'docx':
+                continue #skip non .docx files
+            currDoc = filename[:(len(filename) - 5)]  # Grab the name of the current document from the full path
+            print('Working to analyze ' + currDoc)  # User-friendly message
+            openName = originDirectory + "/" + filename  # I want to leave the original files alone, so put edited files in a different location
+    
+            doc = Document(originDirectory + '/' + filename)  # Open the original file
+            updateWordCount(openName)
+            global df_counts
+            df_counts.to_csv(saveDirectory + r'\word_counts_setup.csv', index=True, index_label='Participant_ID')
+    
+            # indexNames = df_counts[df_counts['PageNum'] == 'stop']
+            # df_counts.drop(indexNames, inplace=True)
+        
+    else:
+        df_counts = pd.read_csv(saveDirectory + os.sep + "word_counts_setup.csv")
+        
     ##############################################################
     # Dynamically create the column names for the final data file
     # using all the given words in the current csv file
@@ -143,47 +168,13 @@ if __name__ == '__main__':
             df_counts.loc[currIndex, 'P_' + referent] = 0
             df_counts.loc[currIndex, 'C_' + referent] = 0
 
-    ### This directory section will make the code execute on each of the files in the originDirectory
-    directory = os.fsencode(originDirectory)
-    for file in os.listdir(directory):  # Grab each file, one at a time
-        filename = os.fsdecode(file)  # Take the code from computer language to a path
-        if filename.split('.')[-1] != 'docx':
-            continue #skip non .docx files
-        currDoc = filename[:(len(filename) - 5)]  # Grab the name of the current document from the full path
-        print('Working to analyze ' + currDoc)  # User-friendly message
-        openName = originDirectory + "/" + filename  # I want to leave the original files alone, so put edited files in a different location
-
-        doc = Document(originDirectory + '/' + filename)  # Open the original file
-        updateWordCount(openName)
-        df_counts.to_csv(saveDirectory + r'\word_counts_final.csv', index=True, index_label='Participant_ID')
-
-        # indexNames = df_counts[df_counts['PageNum'] == 'stop']
-        # df_counts.drop(indexNames, inplace=True)
-
-        # Go through each row of the key words you read in from the file
+    # Go through each row of the key words you read in from the file
     print('Analyzing Key Words')
     for index, row in keywords.iterrows():
-        # print(row[head_emotion], ' ', row[head_emoter],' ',row[head_objects])
-        for indexCount, rowCount in df_counts.iterrows():
-            p_transcript = str(df_counts.loc[indexCount, 'P_transcript']).lower()
-            c_transcript = str(df_counts.loc[indexCount, 'C_transcript']).lower()
-            print(p_transcript)
-            print(c_transcript)
-            if (isinstance(row[head_emotion], str)):
-                parentWord = len(re.findall(row[head_emotion], p_transcript))
-                childWord = len(re.findall(row[head_emotion], c_transcript))
-                df_counts.loc[indexCount, 'P_' + row[head_emotion]] = parentWord
-                df_counts.loc[indexCount, 'C_' + row[head_emotion]] = childWord
-            if (isinstance(row[head_emoter], str)):
-                parentWord = len(re.findall(row[head_emoter], p_transcript))
-                childWord = len(re.findall(row[head_emoter], c_transcript))
-                df_counts.loc[indexCount, 'P_' + row[head_emoter]] = parentWord
-                df_counts.loc[indexCount, 'C_' + row[head_emoter]] = childWord
-            if (isinstance(row[head_objects], str)):
-                parentWord = len(re.findall(row[head_objects], p_transcript))
-                childWord = len(re.findall(row[head_objects], c_transcript))
-                df_counts.loc[indexCount, 'P_' + row[head_objects]] = parentWord
-                df_counts.loc[indexCount, 'C_' + row[head_objects]] = childWord
+        for query in row:
+            if isinstance(query, str):
+                df_counts.loc[:, 'P_' + query] = df_counts.P_transcript.str.count(query)
+                df_counts.loc[:, 'C_' + query] = df_counts.C_transcript.str.count(query)
 
     df_counts.fillna(0, inplace=True)
     # Once you are done, write your dataframe to a csv so you can run your statistics :)
@@ -193,3 +184,13 @@ if __name__ == '__main__':
     print("\n\n\nOutput for each file successfully written to csv file in parsed folder\n\n\n")
 
     # End of Program
+
+
+##############################################################
+# This is where the program will actually start
+# Then, it will follow through the function calls
+##############################################################
+if __name__ == '__main__':
+    main(sys.argv[1:])
+    
+    
