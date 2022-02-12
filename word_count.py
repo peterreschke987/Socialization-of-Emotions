@@ -49,7 +49,7 @@ currIndex = 'None'
 def updateWordCount(filename):
     global currIndex  # Reference the global current Index
     global currSpeaker  # Reference the global current Speaker
-    global currDoc  # FIXME
+    currDoc = filename.split(os.sep)[-1][:-5]  # Grab the name of the current document from the full path
     doc = Document(filename)  # Open the current document
     for paragraph in doc.paragraphs:
         # print('\t',paragraph.text)
@@ -111,7 +111,9 @@ def updateWordCount(filename):
             # print('        Added Child ' + currIndex + ' ',words,' for a total of ' + str(df_counts.loc[currIndex, 'C_WordCount']))
     return
 
-def main(args):
+def main(args):    
+    global df_counts
+    
     #Create Command Line Parser and parse arguments
     parser = argparse.ArgumentParser(description=r"")
     parser.add_argument('-r', '--rebuild', type=ast.literal_eval, default=True, help="Whether to rebuild the word_counts_setup file; default is False")
@@ -135,11 +137,10 @@ def main(args):
                 continue #skip non .docx files
             currDoc = filename[:(len(filename) - 5)]  # Grab the name of the current document from the full path
             print('Working to analyze ' + currDoc)  # User-friendly message
-            openName = originDirectory + "/" + filename  # I want to leave the original files alone, so put edited files in a different location
+            openName = originDirectory + os.sep + filename  # I want to leave the original files alone, so put edited files in a different location
     
-            doc = Document(originDirectory + '/' + filename)  # Open the original file
+            doc = Document(originDirectory + os.sep + filename)  # Open the original file
             updateWordCount(openName)
-            global df_counts
             df_counts.to_csv(saveDirectory + r'\word_counts_setup.csv', index=True, index_label='Participant_ID')
     
             # indexNames = df_counts[df_counts['PageNum'] == 'stop']
