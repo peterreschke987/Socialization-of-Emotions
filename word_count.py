@@ -146,6 +146,8 @@ if __name__ == '__main__':
     for file in os.listdir(directory):  # Grab each file, one at a time
         filename = os.fsdecode(file)  # Take the code from computer language to a path
         currDoc = filename[:(len(filename) - 5)]  # Grab the name of the current document from the full path
+        if filename.split('.')[-1] != 'docx':
+            continue #skip non .docx files
         print('Working to analyze ' + currDoc)  # User-friendly message
         openName = originDirectory + "/" + filename  # I want to leave the original files alone, so put edited files in a different location
 
@@ -158,30 +160,13 @@ if __name__ == '__main__':
         # indexNames = df_counts[df_counts['PageNum'] == 'stop']
         # df_counts.drop(indexNames, inplace=True)
 
-        # Go through each row of the key words you read in from the file
+    # Go through each row of the key words you read in from the file
     print('Analyzing Key Words')
     for index, row in keywords.iterrows():
-        # print(row[head_emotion], ' ', row[head_emoter],' ',row[head_objects])
-        for indexCount, rowCount in df_counts.iterrows():
-            p_transcript = str(df_counts.loc[indexCount, 'P_transcript']).lower()
-            c_transcript = str(df_counts.loc[indexCount, 'C_transcript']).lower()
-            print(p_transcript)
-            print(c_transcript)
-            if (isinstance(row[head_emotion], str)):
-                parentWord = len(re.findall(row[head_emotion], p_transcript))
-                childWord = len(re.findall(row[head_emotion], c_transcript))
-                df_counts.loc[indexCount, 'P_' + row[head_emotion]] = parentWord
-                df_counts.loc[indexCount, 'C_' + row[head_emotion]] = childWord
-            if (isinstance(row[head_emoter], str)):
-                parentWord = len(re.findall(row[head_emoter], p_transcript))
-                childWord = len(re.findall(row[head_emoter], c_transcript))
-                df_counts.loc[indexCount, 'P_' + row[head_emoter]] = parentWord
-                df_counts.loc[indexCount, 'C_' + row[head_emoter]] = childWord
-            if (isinstance(row[head_objects], str)):
-                parentWord = len(re.findall(row[head_objects], p_transcript))
-                childWord = len(re.findall(row[head_objects], c_transcript))
-                df_counts.loc[indexCount, 'P_' + row[head_objects]] = parentWord
-                df_counts.loc[indexCount, 'C_' + row[head_objects]] = childWord
+        for query in row:
+            if isinstance(query, str):
+                df_counts.loc[:, 'P_' + query] = df_counts.P_transcript.str.lower().str.count(query)
+                df_counts.loc[:, 'C_' + query] = df_counts.C_transcript.str.lower().str.count(query)
 
     df_counts.fillna(0, inplace=True)
     # Once you are done, write your dataframe to a csv so you can run your statistics :)
