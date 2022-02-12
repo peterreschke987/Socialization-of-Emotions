@@ -114,7 +114,7 @@ def updateWordCount(filename):
 def main(args):
     #Create Command Line Parser and parse arguments
     parser = argparse.ArgumentParser(description=r"")
-    parser.add_argument('-r', '--rebuild', type=ast.literal_eval, default=False, help="Whether to rebuild the word_counts_setup file; default is False")
+    parser.add_argument('-r', '--rebuild', type=ast.literal_eval, default=True, help="Whether to rebuild the word_counts_setup file; default is False")
     opts = parser.parse_args(args)
     
     #Create dialogue box and ask for keywords file
