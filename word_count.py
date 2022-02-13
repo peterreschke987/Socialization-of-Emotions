@@ -224,7 +224,7 @@ def main(args):
         saveDirectory = filedialog.askdirectory(title="Select the folder to save results to")
     else:
         saveDirectory = opts.saveDirectory
-    if opts.k and not opts.r:        
+    if opts.k:        
         keysFile = filedialog.askopenfilename(title="Select a csv file containing your keywords",
                                            filetypes=(("CSV Files", "*.csv"), ("All Files", "*.*")))
     else:
