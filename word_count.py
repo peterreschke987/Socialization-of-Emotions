@@ -115,7 +115,6 @@ class Socialization_of_Emotion(object):
             filename : str
                 Path to a .docx file
         """
-        doc = Document(filename)  # Open the current document
         currDoc = filename.split(os.sep)[-1][:-5]
         if self.verbose:
             print('Working to analyze ' + currDoc)  # User-friendly message
@@ -130,7 +129,6 @@ class Socialization_of_Emotion(object):
             # Update from a speaker change
             if paragraph.text[:5].lower() in ['paren', 'child']:
                 currSpeaker = paragraph.text[:5].lower()
-                continue
 
             # Update from a page change
             page_in_para = re.search('\[([pP]age )([\d\w]+)\]', paragraph.text)
