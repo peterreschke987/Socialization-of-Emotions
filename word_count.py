@@ -57,7 +57,7 @@ def updateWordCount(filename):
             currSpeaker = paragraph.text[:5].lower()
 
         # Update from a page change
-        page_in_para = re.search('\[([pP]age )([\d\w]+)\]', paragraph.text)
+        page_in_para = re.search('\[([pP]age )(\d+-*\w*)\]', paragraph.text)
         if (page_in_para):
             currPage = page_in_para[2]
             currIndex = currDoc + '-Page-' + currPage
@@ -93,7 +93,7 @@ def updateWordCount(filename):
             wordcount = len(re.findall("(\S+)", paragraph.text))  # Count the total number of words
             speakWords = 2 * len(re.findall(r'\d\d:\d\d',
                                             paragraph.text))  # Take off two words every time a new speaker is referenced with a time stamp
-            pageNum = len(re.findall(r'\[[pP]age [\d\w]+\]',
+            pageNum = len(re.findall(r'\[([pP]age )(\d+-*\w*)\]',
                                      paragraph.text))  # Find all the [page ##] to subtract from word count
             wordCorrect = len(re.findall(r'\[\[\w+\]\]',
                                          paragraph.text))  # Find all the instances of 'nake [[snake]] where word is corrected
