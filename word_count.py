@@ -95,7 +95,8 @@ class Socialization_of_Emotion(object):
         
     def _setUp(self):
         directory = os.fsencode(self.originDirectory)
-        columnNames = ['ID', 'PageNum', 'first_speaker', 'P_transcript', 'C_transcript', 'P_WordCount', 'C_WordCount']
+        columnNames = ['ID', 'PageNum', 'first_speaker', 'P_transcript', 'C_transcript', 
+                       'num_parent_initial_questions', 'P_WordCount', 'C_WordCount']
         self.df_counts = pd.DataFrame(columns=columnNames)
         for file in os.listdir(directory):  # Grab each file, one at a time
             filename = os.fsdecode(file)  # Take the code from computer language to a path
@@ -128,7 +129,9 @@ class Socialization_of_Emotion(object):
 
             # Update from a speaker change
             if paragraph.text[:5].lower() in ['paren', 'child']:
+                prevSpeaker = currSpeaker
                 currSpeaker = paragraph.text[:5].lower()
+                speakerChange = prevSpeaker is not None and prevSpeaker != currSpeaker
 
             # Update from a page change
             page_in_para = re.search('\[([pP]age )(\d+-*\w*)\]', paragraph.text)
@@ -141,7 +144,10 @@ class Socialization_of_Emotion(object):
                 else:
                     self.df_counts.loc[currIndex, 'ID'] = currDoc
                     self.df_counts.loc[currIndex, 'PageNum'] = currPage
-                    self.df_counts.loc[currIndex, 'first_speaker'] = 'parent' if currSpeaker == 'paren' else 'child'
+                    firstSpeaker = 'parent' if currSpeaker == 'paren' else 'child'
+                    speakerChange = False
+                    self.df_counts.loc[currIndex, 'first_speaker'] = firstSpeaker
+                    self.df_counts.loc[currIndex, 'num_parent_initial_questions'] = 0 #initialize to 0
 
             if currIndex is not None:
                 # Save the transcript
@@ -159,6 +165,11 @@ class Socialization_of_Emotion(object):
                     self.df_counts.loc[currIndex, 'P_WordCount'] = 0
                 if pd.isna(self.df_counts.loc[currIndex, 'C_WordCount']):
                     self.df_counts.loc[currIndex, 'C_WordCount'] = 0
+                    
+                # Update num_parent_questions
+                question_count = len(re.findall("\\?", paragraph.text))
+                question_count = question_count if firstSpeaker=='parent' and not speakerChange else 0
+                self.df_counts.loc[currIndex, 'num_parent_initial_questions'] += question_count
 
                 # Update the Word Count
                 wordcount = len(re.findall("(\S+)", paragraph.text))  # Count the total number of words
