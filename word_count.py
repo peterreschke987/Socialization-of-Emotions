@@ -95,8 +95,9 @@ class Socialization_of_Emotion(object):
         
     def _setUp(self):
         directory = os.fsencode(self.originDirectory)
-        columnNames = ['ID', 'PageNum', 'first_speaker', 'P_transcript', 'C_transcript', 
-                       'num_parent_initial_questions', 'P_WordCount', 'C_WordCount']
+        columnNames = ['ID', 'PageNum', 'first_speaker', 'first_text', 'P_transcript', 
+                       'C_transcript', 'num_parent_initial_questions', 'P_WordCount', 
+                       'C_WordCount']
         self.df_counts = pd.DataFrame(columns=columnNames)
         for file in os.listdir(directory):  # Grab each file, one at a time
             filename = os.fsdecode(file)  # Take the code from computer language to a path
@@ -147,6 +148,7 @@ class Socialization_of_Emotion(object):
                     firstSpeaker = 'parent' if currSpeaker == 'paren' else 'child'
                     speakerChange = False
                     self.df_counts.loc[currIndex, 'first_speaker'] = firstSpeaker
+                    self.df_counts.loc[currIndex, 'first_text'] = paragraph.text
                     self.df_counts.loc[currIndex, 'num_parent_initial_questions'] = 0 #initialize to 0
 
             if currIndex is not None:
