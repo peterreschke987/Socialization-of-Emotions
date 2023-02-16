@@ -145,11 +145,14 @@ class Socialization_of_Emotion(object):
                 else:
                     self.df_counts.loc[currIndex, 'ID'] = currDoc
                     self.df_counts.loc[currIndex, 'PageNum'] = currPage
-                    firstSpeaker = 'parent' if currSpeaker == 'paren' else 'child'
-                    speakerChange = False
-                    self.df_counts.loc[currIndex, 'first_speaker'] = firstSpeaker
-                    self.df_counts.loc[currIndex, 'first_text'] = paragraph.text
-                    self.df_counts.loc[currIndex, 'num_parent_initial_questions'] = 0 #initialize to 0
+                    if pd.isna(self.df_counts.loc[currIndex, 'first_speaker']):
+                        firstSpeaker = 'parent' if currSpeaker == 'paren' else 'child'
+                        speakerChange = False
+                        self.df_counts.loc[currIndex, 'first_speaker'] = firstSpeaker
+                        self.df_counts.loc[currIndex, 'first_text'] = paragraph.text
+                        self.df_counts.loc[currIndex, 'num_parent_initial_questions'] = 0 #initialize to 0
+                    else:
+                        speakerChange = True
 
             if currIndex is not None:
                 # Save the transcript
