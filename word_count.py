@@ -96,7 +96,7 @@ class Socialization_of_Emotion(object):
     def _setUp(self):
         directory = os.fsencode(self.originDirectory)
         columnNames = ['ID', 'PageNum', 'first_speaker', 'first_text', 'P_transcript', 
-                       'C_transcript', 'num_parent_initial_questions', 'P_WordCount', 
+                       'C_transcript', 'full_transcript', 'num_parent_initial_questions', 'P_WordCount',
                        'C_WordCount']
         self.df_counts = pd.DataFrame(columns=columnNames)
         for file in os.listdir(directory):  # Grab each file, one at a time
@@ -124,6 +124,7 @@ class Socialization_of_Emotion(object):
         currPage = None
         currSpeaker = None
         doc = Document(filename)  # Open the current document
+        prev_paragraph = None
         for paragraph in doc.paragraphs:
             if paragraph.text == '':
                 continue
@@ -164,6 +165,10 @@ class Socialization_of_Emotion(object):
                     if pd.isna(self.df_counts.loc[currIndex, 'C_transcript']):
                         self.df_counts.loc[currIndex, 'C_transcript'] = ""
                     self.df_counts.loc[currIndex, 'C_transcript'] += ' ' + paragraph.text
+
+                if pd.isna(self.df_counts.loc[currIndex, 'full_transcript']):
+                    self.df_counts.loc[currIndex, 'full_transcript'] = ""
+                self.df_counts.loc[currIndex, 'full_transcript'] += ' ' + paragraph.text + '\n'
 
                 # Handle the initialization of a new cell
                 if pd.isna(self.df_counts.loc[currIndex, 'P_WordCount']):
